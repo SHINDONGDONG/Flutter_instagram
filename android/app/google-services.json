@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "329872161046",
+    "project_id": "social-network-appinsta",
+    "storage_bucket": "social-network-appinsta.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329872161046:android:b36e14d41aadb5f46f3837",
+        "android_client_info": {
+          "package_name": "com.example.flutter_insta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "329872161046-45u2q91r602cp0mc4qfvfk3p6lf1js9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_insta",
+            "certificate_hash": "160e9fa4ac0437927fd0c52c183434fae19b687f"
+          }
+        },
+        {
+          "client_id": "329872161046-mo9t001qil16cn5rj3rf608vkh4ce6om.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSKaA7EHsOcEH4pOo5I3Hixas-OQVcmBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "329872161046-mo9t001qil16cn5rj3rf608vkh4ce6om.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
