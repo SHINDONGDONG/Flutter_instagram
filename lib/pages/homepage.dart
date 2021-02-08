@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_insta/models/user.dart';
+import 'package:flutter_insta/pages/create_account_page.dart';
 import 'package:flutter_insta/pages/upload_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'notifi_page.dart';
@@ -15,6 +18,10 @@ class HomePage extends StatefulWidget {
 }
 
 final GoogleSignIn gSign = GoogleSignIn(); //구글 로그인을 할 수 있는 api
+final userReference = Firestore.instance.collection("users"); //userReference 변수에 Firestore인스턴스 콜렉션(users테이블 가져오기)
+
+final DateTime timestamp = DateTime.now();           //현시각을 타임스탬프에 대입해준다.
+User currenUser;
 
 class _HomePageState extends State<HomePage> {
   PageController pageController;
@@ -42,6 +49,7 @@ class _HomePageState extends State<HomePage> {
 
   controlSignIn(GoogleSignInAccount signInAccount) async {
     //구글로그인 허가 비허가 컨트롤러
+    await saveUserInfoToFireStore(); //유저정보를 파이어 스토어에 저장하는 메소드
     if (signInAccount != null) {
       setState(() {
         isSignedIn = true;
@@ -50,6 +58,28 @@ class _HomePageState extends State<HomePage> {
       isSignedIn = false;
     }
   }
+
+  saveUserInfoToFireStore() async{
+    final GoogleSignInAccount gCurrentUser = gSign.currentUser; //현재 로그인 되어있는 커런트유저를 google 사인어카운트에 대입
+    DocumentSnapshot documentSnapshot = await userReference.document(gCurrentUser.id).get(); 
+    //스냅샷에 userReference를 빼온다 gCureentUser.id와 비교해서 맞으면 빼옴
+    if(!documentSnapshot.exists){     //존재하지 않는 아이디이면
+      final username = await Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateAccountPage()));
+
+      userReference.document(gCurrentUser.id).setData({
+      "id" : gCurrentUser.id,
+      "profileName": gCurrentUser.displayName,
+      "username" : username,
+        "url" : gCurrentUser.photoUrl,
+        "email" : gCurrentUser.email,
+        "bio" : "",
+        "timestamp" : timestamp
+      });
+      documentSnapshot = await userReference.document(gCurrentUser.id).get(); //gcurrentuser.id를 가져와야한다.
+    }
+    currenUser = User.formDocument(documentSnapshot);          //model user에 모든걸 대입한다.
+  }
+
 
   void dispose(){       //상태 객체가 제거될때  변수에 할당된 메모리를 해제하기 위함.
     pageController.dispose();
@@ -62,13 +92,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   logoutUser() {
-    gSign.signOut(); //사인아웃 메소드
+    setState(() {
+      gSign.signOut(); //사인아웃 메소드
+    });
+    this.isSignedIn = false;
+    print('Log out');
   }
 
   whenPageChanges(int pageIndex){
     setState(() {
     this.getPageIndex = pageIndex;     //그림을 다시 그려야 하기 때문에 setState
-      print(this.getPageIndex);
+      print("current Page index : ${this.getPageIndex}");
     });
   }
 
@@ -81,7 +115,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: PageView(             //페이지 뷰의 칠드런들은 자동으로 index를 부여받게된다.
         children: [
-          TimeLinePage(),
+          // TimeLinePage(),
+          RaisedButton.icon(onPressed:(){return logoutUser();}, icon: Icon(Icons.close), label: Text('Close')),
           SearchPage(),
           UploadPage(),
           NotificationsPage(),
@@ -100,19 +135,14 @@ class _HomePageState extends State<HomePage> {
         items: [
 
           BottomNavigationBarItem(icon: Icon(Icons.home),
-          label: "Home",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.search),
-          label: "Search",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.photo_camera,size: 37,),
-          label: "Camera",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.favorite),
-          label: "Favorit",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.person),
-          label: "Profile",
           ),
         ],
 
