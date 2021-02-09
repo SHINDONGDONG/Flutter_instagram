@@ -25,7 +25,7 @@ final postsReference = Firestore.instance.collection("posts"); //postReference �
 
 
 final DateTime timestamp = DateTime.now();           //현시각을 타임스탬프에 대입해준다.
-User currenUser;
+ User currenUser = User();
 
 class _HomePageState extends State<HomePage> {
   PageController pageController;
@@ -119,12 +119,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: PageView(             //페이지 뷰의 칠드런들은 자동으로 index를 부여받게된다.
         children: [
-          // TimeLinePage(),
-          RaisedButton.icon(onPressed:(){return logoutUser();}, icon: Icon(Icons.close), label: Text('Close')),
+          TimeLinePage(),
+          // RaisedButton.icon(onPressed:(){return logoutUser();}, icon: Icon(Icons.close), label: Text('Close')),
           SearchPage(),
           UploadPage(gCurrentUser: currenUser,),
           NotificationsPage(),
-          ProfilePage(),
+          ProfilePage(userProfileId: currenUser.id),
         ],
         controller: pageController,           //페이지를 컨트롤 할 수 있다. 컨트롤러로
         onPageChanged: whenPageChanges,         //페이지를 바꾸면 자동으로 인덱스번호가 whenpagechanges메소드로 입력되어 getpa인덱스로대입
