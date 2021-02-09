@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_insta/models/user.dart';
@@ -19,6 +20,9 @@ class HomePage extends StatefulWidget {
 
 final GoogleSignIn gSign = GoogleSignIn(); //구글 로그인을 할 수 있는 api
 final userReference = Firestore.instance.collection("users"); //userReference 변수에 Firestore인스턴스 콜렉션(users테이블 가져오기)
+final StorageReference storageReference = FirebaseStorage.instance.ref().child("Posts Pictures"); //스토레지 생성될 파일명.
+final postsReference = Firestore.instance.collection("posts"); //postReference 변수에 Firestore인스턴스 콜렉션(posts테이블 가져오기)
+
 
 final DateTime timestamp = DateTime.now();           //현시각을 타임스탬프에 대입해준다.
 User currenUser;
@@ -118,7 +122,7 @@ class _HomePageState extends State<HomePage> {
           // TimeLinePage(),
           RaisedButton.icon(onPressed:(){return logoutUser();}, icon: Icon(Icons.close), label: Text('Close')),
           SearchPage(),
-          UploadPage(),
+          UploadPage(gCurrentUser: currenUser,),
           NotificationsPage(),
           ProfilePage(),
         ],

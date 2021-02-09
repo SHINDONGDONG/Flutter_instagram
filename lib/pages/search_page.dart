@@ -10,7 +10,7 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMixin{ //자동연결
+class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMixin<SearchPage>{ //자동연결
 
   TextEditingController searchTextEditingController = TextEditingController();     //텍스트를 컨트롤할 수 있는 컨트롤러
   Future<QuerySnapshot> futureSearchResult;
