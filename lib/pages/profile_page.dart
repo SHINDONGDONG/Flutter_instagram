@@ -1,5 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_insta/Widgets/PostTileWidget.dart';
+import 'package:flutter_insta/Widgets/PostWidget.dart';
 import 'package:flutter_insta/Widgets/hader_widget.dart';
 import 'package:flutter_insta/Widgets/progress_widget.dart';
 import 'package:flutter_insta/models/user.dart';
@@ -17,6 +20,17 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
  final String currentOnlineUserId = currenUser?.id;
+ bool loading = false;
+ int countPost = 0;
+ List<Post> postList = [];
+ String postOrientation = "grid";
+
+
+ void initState(){
+   super.initState();
+   getAllProfilePosts();
+ }
+
 
   createProfileTopViwe(){
     return FutureBuilder(                   //이벤트에 등록 퓨처빌드
@@ -148,8 +162,89 @@ class _ProfilePageState extends State<ProfilePage> {
       body: ListView(                //리스뷰로 바디를 보여주고
         children: [
           createProfileTopViwe(),         //프로파일 탑 뷰 메소드작성
+          Divider(),
+          createListAndGridPostOrientation(),
+          Divider(height: 0.0,),
+          displayProfilePost(),
         ],
       ),
     );
   }
+
+ createListAndGridPostOrientation(){
+   return Row(
+     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+     children: [
+       IconButton(icon: Icon(Icons.grid_on),
+       color: postOrientation =="grid" ? Theme.of(context).primaryColor : Colors.grey,
+         onPressed: () => setOrientation("grid"),
+       ),
+       IconButton(icon: Icon(Icons.list),
+       color: postOrientation =="list" ? Theme.of(context).primaryColor : Colors.grey,
+         onPressed: () => setOrientation("list"),
+       ),
+     ],
+   );
+ }
+
+ setOrientation(String orientation){
+   setState(() {
+     this.postOrientation = orientation;
+   });
+ }
+ displayProfilePost(){
+    if(loading){
+      return circularProgress();
+    }else if(postList.isEmpty){
+      return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(padding: EdgeInsets.all(30),
+            child: Icon(Icons.photo_library,color: Colors.grey,size: 200,),
+            ),
+            Padding(padding: EdgeInsets.only(top: 20),
+            child: Text("No Post",style: TextStyle(color: Colors.redAccent,fontSize: 40,fontWeight: FontWeight.bold),),),
+          ],
+        ),
+      );
+    }
+    else if(postOrientation =="grid"){
+      List<GridTile> gridTileList = [];
+      postList.forEach((eachPost) {
+        gridTileList.add(GridTile(child: PostTile(eachPost)));
+      });
+      return GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 1.5,
+        crossAxisSpacing: 1.5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTileList,
+      );
+    }
+    else if(postOrientation =="list"){
+
+    }
+
+
+    return Column(
+      children: postList,
+    );
+ }
+
+ getAllProfilePosts()async{
+   setState(() {
+     loading = true;
+   });
+   QuerySnapshot querySnapshot = await postsReference.document(widget.userProfileId).collection("usersPosts").orderBy("timestamp",descending: true).getDocuments();
+   setState(() {
+     loading = false;
+     countPost = querySnapshot.documents.length;
+     postList = querySnapshot.documents.map((documentSnapshot) => Post.fromDocument(documentSnapshot)).toList();
+   });
+
+ }
+
 }
